@@ -20,20 +20,27 @@ class TaskDatasource {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, DBKeys.dbName);
     return openDatabase(path,
-    version: 1,
+    version: 2,
     onCreate: _onCreate,
+    onUpgrade: (db, oldVersion, newVersion) async{
+      if(oldVersion < 2){
+        await db.execute("ALTER TABLE ${DBKeys.dbTable} ADD COLUMN ${DBKeys.timeColumn} TEXT;");
+    }
+    },
     );
 
   }
-  Future<void> _onCreate(Database dp, int version) async{
-    await dp.execute('''
+  Future<void> _onCreate(Database db, int version) async{
+    await db.execute('''
         CREATE TABLE ${DBKeys.dbTable}(
-        ${DBKeys.idColumn} INTEGER PRIMARY KEY AUTOINCREMENT,
-        ${DBKeys.titleColumn} TEXT,
-        ${DBKeys.noteColumn} TEXT,
-        ${DBKeys.dateColumn} TEXT
-        ${DBKeys.categoryColumn} TEXT,
-        ${DBKeys.isCompletedColumn} INTEGER,
+          ${DBKeys.idColumn} INTEGER PRIMARY KEY AUTOINCREMENT,
+          ${DBKeys.titleColumn} TEXT,
+          ${DBKeys.noteColumn} TEXT,
+          ${DBKeys.timeColumn} TEXT,
+          ${DBKeys.dateColumn} TEXT,
+          
+          ${DBKeys.categoryColumn} TEXT,
+          ${DBKeys.isCompletedColumn} INTEGER
         )
 
           ''');
