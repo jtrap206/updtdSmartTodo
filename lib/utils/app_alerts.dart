@@ -33,8 +33,9 @@ class AppAlerts {
       );
       Widget deleteButton = TextButton(
       onPressed: () async {
-        await ref.read(taskProvider.notifier).deleteTask(task).then((Value){
+        await ref.read(taskProvider.notifier).deleteTask(task).then((value){
           AppAlerts.displaySnackBar(context, 'Task delete successful');
+          context.pop();
         });
       }, 
       child: const Text('YES')

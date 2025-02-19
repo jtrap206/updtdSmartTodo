@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:todo_new/data/data.dart';
+import 'package:todo_new/providers/task/task.dart';
 import 'package:todo_new/utils/extensions.dart';
 import 'package:todo_new/utils/utils.dart';
-import 'common_containers.dart';
 import 'package:todo_new/widgets/widgets.dart';
 
 
@@ -37,7 +37,7 @@ class DisplayListOfTasks extends ConsumerWidget{
               itemBuilder: (ctx, index){
                 final task = tasks[index];
               return InkWell(
-                onLongPress: () {
+                onLongPress: () async {
                     AppAlerts.showDeletedAlertDialog(context, ref, task);
                 },
                 onTap: () async{
@@ -48,7 +48,22 @@ class DisplayListOfTasks extends ConsumerWidget{
                     });
 
                 },
-                child: TaskTile(task: task)
+                child: TaskTile(
+                  task: task,
+                  onCompleted: (value) async {
+                    await ref
+                    .read(taskProvider.notifier)
+                    .updateTask(task)
+                    .then((value){
+                      AppAlerts.displaySnackBar(
+                        context, 
+                        task.isCompleted
+                        ? 'task incompleted'
+                        : 'task completed',
+                        );
+                    });
+                  },
+                  )
                 );
 
                 }, separatorBuilder: (BuildContext context, int index) { 
