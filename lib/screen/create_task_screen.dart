@@ -58,7 +58,7 @@ class _CreateTaskScreenState extends ConsumerState<CreateTaskScreen> {
                 maxLines: 6,
                 controller: _noteController,
               ),
-              const Gap(30),
+              const Gap(90),
               ElevatedButton(
                 style: ButtonStyle(backgroundColor: WidgetStatePropertyAll(Colors.pink)),
                 onPressed: _createTask, 

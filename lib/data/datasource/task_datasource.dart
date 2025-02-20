@@ -22,14 +22,13 @@ class TaskDatasource {
     return openDatabase(path,
     version: 2,
     onCreate: _onCreate,
-    onUpgrade: (db, oldVersion, newVersion) async{
-      if(oldVersion < 2){
-        await db.execute("ALTER TABLE ${DBKeys.dbTable} ADD COLUMN ${DBKeys.timeColumn} TEXT;");
-    }
-    },
+    onUpgrade: _onUpgrade,
     );
-
   }
+
+   
+
+  
   Future<void> _onCreate(Database db, int version) async{
     await db.execute('''
         CREATE TABLE ${DBKeys.dbTable}(
@@ -45,8 +44,54 @@ class TaskDatasource {
 
           ''');
 
+         await db.execute('''
+      CREATE TABLE IF NOT EXISTS settings(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        isDarkMode INTEGER
+        )
+     
+    ''');
+
          
   }
+
+  Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      await db.execute("ALTER TABLE ${DBKeys.dbTable} ADD COLUMN ${DBKeys.timeColumn} TEXT;");
+    }
+
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS settings(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,  -- ✅ Fixed typo
+        isDarkMode INTEGER
+      )
+    ''');
+  }
+    Future<void> saveTheme(bool isDarkMode)async{
+      final db = await database;
+      await db.insert(
+        'settings',
+        {'isDarkMode': isDarkMode ? 1: 0},
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+    }
+
+    Future<bool> getTheme() async {
+    final db = await database;
+    final result = await db.query('settings', limit: 1);
+
+    if (result.isEmpty) {
+      await db.insert(
+        'settings',
+        {'id': 1, 'isDarkMode': 0},
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+      return false;
+    }
+
+    return result.first['isDarkMode'] == 1;
+  }
+
    Future<int> addTask(Task task) async {
     final db = await database;
     return db.transaction((txn) async{

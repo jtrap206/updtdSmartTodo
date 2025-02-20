@@ -27,6 +27,8 @@ class HomeScreen extends ConsumerWidget{
     final completedTasks = _completedTasks( taskState.tasks, ref);
     final incompletedTasks = _incompletedTasks( taskState.tasks, ref);
     final selectedDate = ref.watch(dateProvider);
+    final isDarkMode = ref.watch(themeProvider);
+    final themeNotifier = ref.watch(themeProvider.notifier);
 
 
     return Scaffold(
@@ -109,6 +111,19 @@ class HomeScreen extends ConsumerWidget{
                   ),
                 ),
               )
+            
+            ),
+
+            Positioned(
+              top: 25,
+              right: 10,
+              child: ElevatedButton.icon(
+                style: ButtonStyle(backgroundColor: WidgetStatePropertyAll(Colors.pinkAccent)),
+                icon: Icon(Icons.brightness_6_outlined),
+                label: Text(isDarkMode ? "Light Mode" : "Dark Mode"),
+                onPressed: () => themeNotifier.toggleTheme(),
+                ),
+                
             
             )
         ],
